@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-database
+  labels:
+    app: book-db
+spec:
+  ports:
+    - port: 3306
+      protocol: TCP
+      targetPort: 3306
+  selector:
+    app: book-db
+    tier: database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-database
+  labels:
+    app: book-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: book-db
+        tier: database
+    spec:
+      containers:
+        - image: mysql:5.6
+          name: mysql-database
+          env:
+            - name: MYSQL_PASSWORD
+              value: root
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+            - name: MYSQL_DATABASE
+              value: book_manager
+
+          ports:
+            - containerPort: 3306
+              name: db    
